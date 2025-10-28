@@ -16,7 +16,8 @@ Welcome to the team! Our mission today is to build a proof-of-concept for the "S
 
 This file is just a quickstart. The complete background, vision, and long-term plan is in the main project summary document. **Please read this first!**
 
--   **Link:** [Link to your "Story Synthesiser Project Summary" Google Doc](https://www.google.com/search?q=PLACEHOLDER_LINK_GOES_HERE "null")
+-   **Link:** [Link to your "Story Synthesiser Project Summary" Google Doc]([https://www.google.com/search?q=PLACEHOLDER_LINK_GOES_HERE "null"](https://docs.google.com/document/d/1agnpyRNVPFN-QcOToBnM3jOArYQuqndXMJr4NMdfR10/edit?usp=sharing))
+-   **Link:** [Link to your "Story Synthesiser Project Summary" Google Doc]()
 
 ### Today's Mission: The Story Synthesiser (Part 1)
 
