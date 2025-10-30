@@ -1,0 +1,23 @@
+{
+  "name": "story-synthesiser-poc",
+  "version": "1.0.0",
+  "description": "Hack Day Quickstart: The Story Synthesiser\r ==========================================",
+  "main": "engine.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loomspark/story-synthesiser-poc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/loomspark/story-synthesiser-poc/issues"
+  },
+  "homepage": "https://github.com/loomspark/story-synthesiser-poc#readme",
+  "dependencies": {
+    "uuid": "^13.0.0"
+  }
+}

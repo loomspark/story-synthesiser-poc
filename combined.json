@@ -1,0 +1,22 @@
+{
+  "user": {
+    "user_id": "001",
+    "name": "Emily Carter",
+    "gender": "Female",
+    "DOB": "1994-07-15",
+    "origin_address": "Asheville, North Carolina, USA",
+    "nationality": "American",
+    "user_description": "Emily is warm, reflective, and outdoorsy, with a calm southern tone to how she speaks. In writing, she’s thoughtful and descriptive, often blending emotion with sensory detail to paint vivid scenes of her experiences."
+  },
+  "experience": {
+    "experience_id": "EXP-4592",
+    "destination_country": "Nepal",
+    "experience_type": "Volunteering"
+  },
+  "story": {
+    "story_id": "ST-9821",
+    "title": "A Rainy Day",
+    "body_text": "The rain had just stopped when Lena stepped onto the cobblestone street, the air still shimmering with the scent of wet earth and woodsmoke. She carried a small leather satchel pressed close to her side, its contents rattling softly with each step—seeds she had gathered from the old garden on the hill. To anyone else they looked ordinary, but Lena knew they were the last remnants of a tree that had once shaded her grandmother’s house, a tree whispered to grant courage to those who planted it. Tonight, under the pale glow of the lanterns, she would decide where to sow them, and with that choice, shape the story of her village’s future.",
+    "is_negative": false
+  }
+}
