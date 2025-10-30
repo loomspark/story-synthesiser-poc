@@ -1,0 +1,13 @@
+{
+    "name": "story-synthesiser-poc",
+    "version": "1.0.0",
+    "description": "Story Synthesiser POC with Ollama",
+    "main": "complete_system.js",
+    "scripts": {
+      "start": "node complete_system.js"
+    },
+    "dependencies": {
+      "@faker-js/faker": "^8.0.0",
+      "uuid": "^9.0.0"
+    }
+  }

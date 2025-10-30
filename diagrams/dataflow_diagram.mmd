@@ -1,0 +1,90 @@
+flowchart TD
+    Start([User runs npm start]) --> Init[Initialize System]
+    Init --> CheckOllama{Ollama<br/>Connected?}
+    CheckOllama -->|No| Error1[Error: Start Ollama]
+    CheckOllama -->|Yes| StartPrompt{User confirms<br/>start?}
+    
+    StartPrompt -->|No| End1([Exit])
+    StartPrompt -->|Yes| LoopStart[Iteration Counter = 1]
+    
+    LoopStart --> GenDemo[Generate Demographics]
+    GenDemo --> Faker1[Faker.js]
+    Faker1 --> DemoData[Name, Age, Gender,<br/>Nationality, Occupation,<br/>Education]
+    
+    DemoData --> GenBackground[Generate Background]
+    GenBackground --> Ollama1[Ollama API]
+    Ollama1 --> Prompt1[Prompt: User Background]
+    Prompt1 --> Background[2-3 Sentence<br/>Backstory]
+    
+    Background --> CP1{CHECKPOINT 1:<br/>Review User?}
+    CP1 -->|Reject| GenDemo
+    CP1 -->|Accept| GenExp[Generate Experience]
+    
+    GenExp --> Faker2[Faker.js]
+    Faker2 --> ExpData[Destination Country,<br/>Experience Type,<br/>Sentiment Flag]
+    
+    ExpData --> CP2{CHECKPOINT 2:<br/>Review Experience?}
+    CP2 -->|Reject| GenExp
+    CP2 -->|Accept| GenStory[Generate Story]
+    
+    GenStory --> Ollama2[Ollama API]
+    Ollama2 --> Prompt2[Prompt: Travel Story<br/>with Context]
+    Prompt2 --> StoryText[200-350 Word<br/>Story]
+    
+    StoryText --> GenTitle[Generate Title]
+    GenTitle --> Ollama3[Ollama API]
+    Ollama3 --> Prompt3[Prompt: Story Title]
+    Prompt3 --> Title[Story Title]
+    
+    Title --> CP3{CHECKPOINT 3:<br/>Review Story?}
+    CP3 -->|Reject| GenStory
+    CP3 -->|Accept| Concat[Concatenate Data]
+    
+    Concat --> Record[Create Record:<br/>User + Experience + Story<br/>with UUIDs]
+    Record --> SaveJSON[Save to<br/>generated_stories.json]
+    SaveJSON --> FileSystem[(File System)]
+    
+    FileSystem --> Counter{Iteration<br/>< 30?}
+    Counter -->|Yes| CheckInterval{Iteration % 5<br/>== 0?}
+    
+    CheckInterval -->|No| Increment[Iteration++]
+    CheckInterval -->|Yes| CP4{CHECKPOINT 4:<br/>Continue?}
+    
+    CP4 -->|Pause| Wait[Wait for User]
+    Wait --> CP4
+    CP4 -->|No| Summary
+    CP4 -->|Stats| ShowStats[Display Statistics]
+    ShowStats --> CP4
+    CP4 -->|Yes| Increment
+    
+    Increment --> LoopStart
+    Counter -->|No| Summary[Show Final<br/>Statistics]
+    Summary --> Complete([Generation Complete])
+    
+    Complete -.Export Process.-> Export[User Opens<br/>export_gui.html]
+    Export --> LoadJSON[Load JSON File]
+    LoadJSON --> FileSystem
+    FileSystem --> ShowData[Display Stats:<br/>Records, Sentiment,<br/>Avg Length]
+    
+    ShowData --> ExportChoice{Export<br/>Format?}
+    ExportChoice -->|CSV| ConvertCSV[Convert to CSV:<br/>Flatten nested objects,<br/>Escape special chars]
+    ExportChoice -->|JSON| DownloadJSON[Download JSON]
+    
+    ConvertCSV --> DownloadCSV[Download CSV]
+    DownloadCSV --> EndExport([Export Complete])
+    DownloadJSON --> EndExport
+    
+    style Start fill:#e1f5e1
+    style Complete fill:#e1f5e1
+    style EndExport fill:#e1f5e1
+    style Error1 fill:#ffe1e1
+    style CP1 fill:#fff4e1
+    style CP2 fill:#fff4e1
+    style CP3 fill:#fff4e1
+    style CP4 fill:#fff4e1
+    style Ollama1 fill:#e1e8ff
+    style Ollama2 fill:#e1e8ff
+    style Ollama3 fill:#e1e8ff
+    style Faker1 fill:#f0e1ff
+    style Faker2 fill:#f0e1ff
+    style FileSystem fill:#e1f5ff

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Story Converter</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .icon-wrapper {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .file-input-wrapper {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-input-label {
+            display: inline-block;
+            padding: 16px 24px;
+            background: #f8fafc;
+            border: 3px dashed #cbd5e1;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .file-input-label:hover {
+            background: #f1f5f9;
+            border-color: #667eea;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            padding: 10px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            color: #1e40af;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .file-name.show {
+            display: block;
+        }
+        
+        .format-section {
+            margin-bottom: 25px;
+            display: none;
+        }
+        
+        .format-section.show {
+            display: block;
+        }
+        
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        
+        .format-btn {
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: white;
+        }
+        
+        .format-btn:hover:not(:disabled) {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            transform: translateY(-2px);
+        }
+        
+        .format-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .format-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .format-btn-icon {
+            font-size: 24px;
+        }
+        
+        .format-btn.json { border-color: #3b82f6; }
+        .format-btn.csv { border-color: #10b981; }
+        .format-btn.xml { border-color: #f59e0b; }
+        .format-btn.yaml { border-color: #8b5cf6; }
+        .format-btn.xlsx { border-color: #059669; }
+        
+        .convert-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+        
+        .convert-btn.show {
+            display: flex;
+        }
+        
+        .convert-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+        }
+        
+        .convert-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .stats {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .stats.show {
+            display: block;
+        }
+        
+        .stats-title {
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 12px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .message {
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .message.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .source-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon-wrapper">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                </svg>
+            </div>
+            <div>
+                <h1>Universal Story Converter</h1>
+                <p class="subtitle">Convert between JSON, CSV, XML, YAML, and Excel formats</p>
+            </div>
+        </div>
+        
+        <div class="file-input-wrapper">
+            <label for="jsonFile">📁 Upload Source File</label>
+            <label for="jsonFile" class="file-input-label">
+                Choose file (JSON, CSV, XML, YAML, Excel)
+            </label>
+            <input type="file" id="jsonFile" accept=".json,.csv,.xml,.yaml,.yml,.xlsx,.xls">
+            <div class="file-name" id="fileName"></div>
+        </div>
+        
+        <div class="format-section" id="formatSection">
+            <label>🎯 Select Target Format</label>
+            <div class="format-grid">
+                <button class="format-btn json" data-format="json">
+                    <span class="format-btn-icon">📄</span>
+                    <span>JSON</span>
+                </button>
+                <button class="format-btn csv" data-format="csv">
+                    <span class="format-btn-icon">📊</span>
+                    <span>CSV</span>
+                </button>
+                <button class="format-btn xml" data-format="xml">
+                    <span class="format-btn-icon">📋</span>
+                    <span>XML</span>
+                </button>
+                <button class="format-btn yaml" data-format="yaml">
+                    <span class="format-btn-icon">📝</span>
+                    <span>YAML</span>
+                </button>
+                <button class="format-btn xlsx" data-format="xlsx">
+                    <span class="format-btn-icon">📗</span>
+                    <span>Excel</span>
+                </button>
+            </div>
+        </div>
+        
+        <button class="convert-btn" id="convertBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            </svg>
+            <span>Convert & Download <span id="targetFormatText">CSV</span></span>
+        </button>
+        
+        <div class="stats" id="stats">
+            <div class="stats-title">📊 File Statistics</div>
+            <div class="stat-item">
+                <span class="stat-label">Source Format:</span>
+                <span class="stat-value" id="sourceFormat">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Total Records:</span>
+                <span class="stat-value" id="recordCount">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Positive Stories:</span>
+                <span class="stat-value" id="positiveCount">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Challenging Stories:</span>
+                <span class="stat-value" id="negativeCount">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Avg Story Length:</span>
+                <span class="stat-value" id="avgLength">-</span>
+            </div>
+        </div>
+        
+        <div class="message" id="message"></div>
+    </div>
+    
+    <script>
+        let jsonData = null;
+        let sourceFormat = '';
+        let targetFormat = 'csv';
+        let originalFileName = '';
+        
+        const fileInput = document.getElementById('jsonFile');
+        const fileName = document.getElementById('fileName');
+        const formatSection = document.getElementById('formatSection');
+        const convertBtn = document.getElementById('convertBtn');
+        const stats = document.getElementById('stats');
+        const message = document.getElementById('message');
+        const formatButtons = document.querySelectorAll('.format-btn');
+        const targetFormatText = document.getElementById('targetFormatText');
+        
+        // Handle file selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const ext = file.name.split('.').pop().toLowerCase();
+            sourceFormat = ext === 'yml' ? 'yaml' : ext;
+            originalFileName = file.name.replace(/\.[^/.]+$/, '');
+            
+            fileName.innerHTML = `📄 ${file.name} <span class="source-badge">${sourceFormat.toUpperCase()}</span>`;
+            fileName.classList.add('show');
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const content = event.target.result;
+                    jsonData = parseFile(content, sourceFormat);
+                    
+                    if (jsonData && jsonData.length > 0) {
+                        showStats(jsonData);
+                        formatSection.classList.add('show');
+                        convertBtn.classList.add('show');
+                        updateFormatButtons();
+                        showMessage('✅ File loaded successfully! Select target format.', 'success');
+                    } else {
+                        throw new Error('No data found in file');
+                    }
+                } catch (error) {
+                    showMessage('❌ Error: ' + error.message, 'error');
+                    jsonData = null;
+                    formatSection.classList.remove('show');
+                    convertBtn.classList.remove('show');
+                }
+            };
+            
+            if (sourceFormat === 'xlsx' || sourceFormat === 'xls') {
+                reader.readAsBinaryString(file);
+            } else {
+                reader.readAsText(file);
+            }
+        });
+        
+        // Format button selection
+        formatButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                targetFormat = btn.dataset.format;
+                updateFormatButtons();
+                targetFormatText.textContent = targetFormat.toUpperCase();
+            });
+        });
+        
+        // Update format button states
+        function updateFormatButtons() {
+            formatButtons.forEach(btn => {
+                const format = btn.dataset.format;
+                btn.classList.remove('selected');
+                
+                if (format === sourceFormat) {
+                    btn.disabled = true;
+                } else {
+                    btn.disabled = false;
+                    if (format === targetFormat) {
+                        btn.classList.add('selected');
+                    }
+                }
+            });
+        }
+        
+        // Convert button
+        convertBtn.addEventListener('click', () => {
+            if (!jsonData) return;
+            
+            try {
+                convertAndDownload(jsonData, targetFormat);
+                showMessage(`✅ ${targetFormat.toUpperCase()} exported successfully!`, 'success');
+            } catch (error) {
+                showMessage('❌ Error converting: ' + error.message, 'error');
+            }
+        });
+        
+        // Parse file based on format
+        function parseFile(content, format) {
+            switch(format) {
+                case 'json':
+                    const parsed = JSON.parse(content);
+                    return Array.isArray(parsed) ? parsed : [parsed];
+                    
+                case 'csv':
+                    return parseCSV(content);
+                    
+                case 'xml':
+                    return parseXML(content);
+                    
+                case 'yaml':
+                    return parseYAML(content);
+                    
+                case 'xlsx':
+                case 'xls':
+                    const workbook = XLSX.read(content, { type: 'binary' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    return XLSX.utils.sheet_to_json(firstSheet);
+                    
+                default:
+                    throw new Error('Unsupported format');
+            }
+        }
+        
+        // Parse CSV
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            
+            return lines.slice(1).map(line => {
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim().replace(/^"|"$/g, ''));
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim().replace(/^"|"$/g, ''));
+                
+                const obj = {};
+                headers.forEach((header, i) => {
+                    obj[header] = values[i] || '';
+                });
+                return obj;
+            });
+        }
+        
+        // Parse XML
+        function parseXML(text) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(text, 'text/xml');
+            const items = xmlDoc.getElementsByTagName('story')[0] ? xmlDoc.getElementsByTagName('story') :
+                         xmlDoc.getElementsByTagName('item')[0] ? xmlDoc.getElementsByTagName('item') :
+                         xmlDoc.getElementsByTagName('record');
+            
+            const result = [];
+            for (let item of items) {
+                const obj = {};
+                for (let child of item.children) {
+                    obj[child.tagName] = child.textContent;
+                }
+                result.push(obj);
+            }
+            return result;
+        }
+        
+        // Parse YAML (simple implementation)
+        function parseYAML(text) {
+            const items = text.split(/\n---\n|\n\.\.\.\n/).filter(Boolean);
+            return items.map(item => {
+                const obj = {};
+                const lines = item.trim().split('\n');
+                lines.forEach(line => {
+                    const match = line.match(/^(\w+):\s*(.+)$/);
+                    if (match) {
+                        obj[match[1]] = match[2].replace(/^["']|["']$/g, '');
+                    }
+                });
+                return obj;
+            });
+        }
+        
+        // Convert and download
+        function convertAndDownload(data, format) {
+            let output, blob, extension, mimeType;
+            
+            switch(format) {
+                case 'json':
+                    output = JSON.stringify(data, null, 2);
+                    mimeType = 'application/json';
+                    extension = 'json';
+                    break;
+                    
+                case 'csv':
+                    output = jsonToCSV(data);
+                    mimeType = 'text/csv';
+                    extension = 'csv';
+                    break;
+                    
+                case 'xml':
+                    output = jsonToXML(data);
+                    mimeType = 'application/xml';
+                    extension = 'xml';
+                    break;
+                    
+                case 'yaml':
+                    output = jsonToYAML(data);
+                    mimeType = 'text/yaml';
+                    extension = 'yaml';
+                    break;
+                    
+                case 'xlsx':
+                    const workbook = XLSX.utils.book_new();
+                    const worksheet = XLSX.utils.json_to_sheet(flattenData(data));
+                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Stories');
+                    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+                    blob = new Blob([excelBuffer], { 
+                        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+                    });
+                    downloadFile(blob, `${originalFileName || 'converted_stories'}.xlsx`);
+                    return;
+                    
+                default:
+                    throw new Error('Unsupported target format');
+            }
+            
+            blob = new Blob([output], { type: mimeType });
+            downloadFile(blob, `${originalFileName || 'converted_stories'}.${extension}`);
+        }
+        
+        // Flatten nested JSON for CSV/Excel
+        function flattenData(data) {
+            return data.map(record => {
+                if (record.user && record.experience && record.story) {
+                    // Story synthesizer format
+                    return {
+                        user_id: record.user.user_id,
+                        user_name: record.user.name,
+                        user_gender: record.user.gender,
+                        user_age: record.user.age,
+                        user_dob: record.user.DOB,
+                        user_nationality: record.user.nationality,
+                        user_origin_address: record.user.origin_address,
+                        user_occupation: record.user.occupation,
+                        user_education: record.user.education,
+                        user_background: record.user.background,
+                        experience_id: record.experience.experience_id,
+                        experience_destination: record.experience.destination_country,
+                        experience_type: record.experience.experience_type,
+                        story_id: record.story.story_id,
+                        story_title: record.story.title,
+                        story_body: record.story.body_text,
+                        story_is_negative: record.story.is_negative
+                    };
+                }
+                return record;
+            });
+        }
+        
+        // Convert JSON to CSV
+        function jsonToCSV(data) {
+            const flatData = flattenData(data);
+            if (flatData.length === 0) return '';
+            
+            const headers = Object.keys(flatData[0]);
+            const escapeCSV = (field) => {
+                if (field === null || field === undefined) return '';
+                const str = String(field);
+                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+            
+            return [
+                headers.join(','),
+                ...flatData.map(row => 
+                    headers.map(h => escapeCSV(row[h])).join(',')
+                )
+            ].join('\n');
+        }
+        
+        // Convert JSON to XML
+        function jsonToXML(data) {
+            let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<stories>\n';
+            data.forEach(item => {
+                xml += '  <story>\n';
+                Object.entries(item).forEach(([key, value]) => {
+                    if (typeof value === 'object' && value !== null) {
+                        xml += `    <${key}>\n`;
+                        Object.entries(value).forEach(([subKey, subValue]) => {
+                            xml += `      <${subKey}>${escapeXML(subValue)}</${subKey}>\n`;
+                        });
+                        xml += `    </${key}>\n`;
+                    } else {
+                        xml += `    <${key}>${escapeXML(value)}</${key}>\n`;
+                    }
+                });
+                xml += '  </story>\n';
+            });
+            xml += '</stories>';
+            return xml;
+        }
+        
+        // Escape XML special characters
+        function escapeXML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
+        }
+        
+        // Convert JSON to YAML
+        function jsonToYAML(data) {
+            return data.map(item => {
+                const lines = [];
+                Object.entries(item).forEach(([key, value]) => {
+                    if (typeof value === 'object' && value !== null) {
+                        lines.push(`${key}:`);
+                        Object.entries(value).forEach(([subKey, subValue]) => {
+                            lines.push(`  ${subKey}: "${subValue}"`);
+                        });
+                    } else {
+                        lines.push(`${key}: "${value}"`);
+                    }
+                });
+                return lines.join('\n');
+            }).join('\n---\n');
+        }
+        
+        // Download file
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Show statistics
+        function showStats(data) {
+            document.getElementById('sourceFormat').textContent = sourceFormat.toUpperCase();
+            document.getElementById('recordCount').textContent = data.length;
+            
+            // Check if this is story synthesizer format
+            const hasStoryFormat = data[0] && data[0].story && data[0].story.is_negative !== undefined;
+            
+            if (hasStoryFormat) {
+                const positive = data.filter(r => !r.story.is_negative).length;
+                const negative = data.filter(r => r.story.is_negative).length;
+                const avgLength = Math.round(
+                    data.reduce((sum, r) => sum + (r.story.body_text?.length || 0), 0) / data.length
+                );
+                
+                document.getElementById('positiveCount').textContent = 
+                    `${positive} (${Math.round(positive/data.length*100)}%)`;
+                document.getElementById('negativeCount').textContent = 
+                    `${negative} (${Math.round(negative/data.length*100)}%)`;
+                document.getElementById('avgLength').textContent = `${avgLength} chars`;
+            } else {
+                document.getElementById('positiveCount').textContent = 'N/A';
+                document.getElementById('negativeCount').textContent = 'N/A';
+                document.getElementById('avgLength').textContent = 'N/A';
+            }
+            
+            stats.classList.add('show');
+        }
+        
+        // Show message
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = `message show ${type}`;
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
