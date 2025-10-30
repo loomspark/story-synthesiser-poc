@@ -289,7 +289,7 @@ MIT License - see [LICENSE](LICENSE) file
 
 For issues or questions:
 - Open an issue on GitHub
-- Contact: [your-email]
+- Contact: georgios.mavrelis@gmail.com
 
 ---
 
