@@ -251,6 +251,6 @@ Consider upgrading to include:
 ---
 
 **Version**: 2.0 Enhanced  
-**Last Updated**: 2025  
-**License**: Open Source  
-**Maintained By**: Story Synthesizer Team
+**Last Updated**: 30 October 2025  
+**License**: MIT  
+**Maintained By**: Georgios Mavrelis 
