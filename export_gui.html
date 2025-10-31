@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Export Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .file-input-wrapper {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .file-input-label:hover {
+            background: #e8e8e8;
+            border-color: #667eea;
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .export-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-csv {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-csv:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-json {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-json:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .stats {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .stats.show {
+            display: block;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            color: #1e293b;
+            font-weight: 700;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .message.show {
+            display: block;
+        }
+        
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Story Export Tool</h1>
+        <p class="subtitle">Convert generated stories to CSV or download JSON</p>
+        
+        <div class="file-input-wrapper">
+            <label for="jsonFile">Select JSON File:</label>
+            <label for="jsonFile" class="file-input-label">
+                📁 Choose generated_stories.json
+            </label>
+            <input type="file" id="jsonFile" accept=".json">
+            <div class="file-name" id="fileName"></div>
+        </div>
+        
+        <div class="export-buttons">
+            <button class="btn-csv" id="exportCsv" disabled>
+                📊 Export CSV
+            </button>
+            <button class="btn-json" id="exportJson" disabled>
+                📄 Download JSON
+            </button>
+        </div>
+        
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <span class="stat-label">Total Records:</span>
+                <span class="stat-value" id="recordCount">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Positive Stories:</span>
+                <span class="stat-value" id="positiveCount">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Challenging Stories:</span>
+                <span class="stat-value" id="negativeCount">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Avg Story Length:</span>
+                <span class="stat-value" id="avgLength">-</span>
+            </div>
+        </div>
+        
+        <div class="message" id="message"></div>
+    </div>
+    
+    <script>
+        let jsonData = null;
+        
+        const fileInput = document.getElementById('jsonFile');
+        const fileName = document.getElementById('fileName');
+        const exportCsvBtn = document.getElementById('exportCsv');
+        const exportJsonBtn = document.getElementById('exportJson');
+        const stats = document.getElementById('stats');
+        const message = document.getElementById('message');
+        
+        // Handle file selection
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            fileName.textContent = `📄 ${file.name}`;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    jsonData = JSON.parse(event.target.result);
+                    showStats(jsonData);
+                    exportCsvBtn.disabled = false;
+                    exportJsonBtn.disabled = false;
+                    showMessage('✅ File loaded successfully!', 'success');
+                } catch (error) {
+                    showMessage('❌ Error: Invalid JSON file', 'error');
+                    jsonData = null;
+                    exportCsvBtn.disabled = true;
+                    exportJsonBtn.disabled = true;
+                }
+            };
+            reader.readAsText(file);
+        });
+        
+        // Export to CSV
+        exportCsvBtn.addEventListener('click', () => {
+            if (!jsonData) return;
+            
+            try {
+                const csv = jsonToCSV(jsonData);
+                downloadFile(csv, 'generated_stories.csv', 'text/csv');
+                showMessage('✅ CSV exported successfully!', 'success');
+            } catch (error) {
+                showMessage('❌ Error exporting CSV: ' + error.message, 'error');
+            }
+        });
+        
+        // Export to JSON
+        exportJsonBtn.addEventListener('click', () => {
+            if (!jsonData) return;
+            
+            const json = JSON.stringify(jsonData, null, 2);
+            downloadFile(json, 'generated_stories.json', 'application/json');
+            showMessage('✅ JSON downloaded successfully!', 'success');
+        });
+        
+        // Convert JSON to CSV
+        function jsonToCSV(data) {
+            const flatData = data.map(record => ({
+                user_id: record.user.user_id,
+                user_name: record.user.name,
+                user_gender: record.user.gender,
+                user_age: record.user.age,
+                user_dob: record.user.DOB,
+                user_nationality: record.user.nationality,
+                user_origin_address: record.user.origin_address,
+                user_occupation: record.user.occupation,
+                user_education: record.user.education,
+                user_background: record.user.background,
+                experience_id: record.experience.experience_id,
+                experience_destination: record.experience.destination_country,
+                experience_type: record.experience.experience_type,
+                story_id: record.story.story_id,
+                story_title: record.story.title,
+                story_body: record.story.body_text,
+                story_is_negative: record.story.is_negative
+            }));
+            
+            const headers = Object.keys(flatData[0]);
+            
+            const escapeCSV = (field) => {
+                if (field === null || field === undefined) return '';
+                const str = String(field);
+                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+            
+            return [
+                headers.join(','),
+                ...flatData.map(row => 
+                    headers.map(h => escapeCSV(row[h])).join(',')
+                )
+            ].join('\n');
+        }
+        
+        // Download file
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Show statistics
+        function showStats(data) {
+            const positive = data.filter(r => !r.story.is_negative).length;
+            const negative = data.filter(r => r.story.is_negative).length;
+            const avgLength = Math.round(
+                data.reduce((sum, r) => sum + r.story.body_text.length, 0) / data.length
+            );
+            
+            document.getElementById('recordCount').textContent = data.length;
+            document.getElementById('positiveCount').textContent = `${positive} (${Math.round(positive/data.length*100)}%)`;
+            document.getElementById('negativeCount').textContent = `${negative} (${Math.round(negative/data.length*100)}%)`;
+            document.getElementById('avgLength').textContent = `${avgLength} chars`;
+            
+            stats.classList.add('show');
+        }
+        
+        // Show message
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = `message show ${type}`;
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+sequenceDiagram
+    participant U as User
+    participant S as complete_system.js
+    participant F as Faker.js
+    participant O as Ollama (llama3.2)
+    participant FS as File System
+
+    Note over U,FS: Story Generation Loop (30 iterations)
+    
+    U->>S: npm start
+    S->>O: Test connection
+    O-->>S: ✓ Connected
+    S->>U: Start generation? (y/n)
+    U->>S: y
+    
+    loop For each story (1-30)
+        Note over S: Generate Demographics
+        S->>F: Generate user data
+        F-->>S: Name, age, nationality, occupation
+        
+        Note over S: Generate Background
+        S->>O: Generate user background prompt
+        O-->>S: 2-3 sentence backstory
+        
+        Note over S: CHECKPOINT 1
+        S->>U: Review user? (y/n/regenerate)
+        alt User accepts
+            U->>S: y
+        else User rejects
+            U->>S: n
+            Note over S: Regenerate user
+        end
+        
+        Note over S: Generate Experience
+        S->>F: Random destination & type
+        F-->>S: Experience details
+        
+        Note over S: CHECKPOINT 2
+        S->>U: Review experience? (y/n)
+        U->>S: y
+        
+        Note over S: Generate Story
+        S->>O: Generate story prompt<br/>(user + background + experience)
+        O-->>S: 200-350 word story
+        
+        S->>O: Generate title prompt
+        O-->>S: Story title
+        
+        Note over S: CHECKPOINT 3
+        S->>U: Review story? (y/n/regenerate)
+        U->>S: y
+        
+        Note over S: Save Record
+        S->>S: Concatenate user + experience + story
+        S->>FS: Append to generated_stories.json
+        FS-->>S: ✓ Saved
+        
+        alt Every 5 stories
+            Note over S: CHECKPOINT 4
+            S->>U: Continue? (y/n/pause/stats)
+            U->>S: y
+        end
+    end
+    
+    Note over S: Generation Complete
+    S->>U: Show statistics
+    S->>U: Output: generated_stories.json
+
+    Note over U,FS: Export Process
+    
+    U->>U: Open export_gui.html
+    U->>FS: Select generated_stories.json
+    FS-->>U: Load JSON data
+    U->>U: Click "Export CSV"
+    U->>FS: Download generated_stories.csv
